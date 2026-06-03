@@ -6,6 +6,7 @@ import historyRouter from "./history.js";
 import accountRouter from "./account.js";
 import triggersRouter from "./triggers.js";
 import settingsRouter from "./settings.js";
+import aiRouter from "./ai.js";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use("/history", historyRouter);
 router.use("/account", accountRouter);
 router.use("/triggers", triggersRouter);
 router.use("/settings", settingsRouter);
+router.use("/ai", aiRouter);
 
 export default router;

@@ -5,7 +5,7 @@ import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import { SymbolView } from "expo-symbols";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { Platform, StyleSheet, View, useColorScheme } from "react-native";
+import { Platform, StyleSheet, useColorScheme } from "react-native";
 import { useColors } from "@/hooks/useColors";
 
 function NativeTabLayout() {
@@ -23,6 +23,10 @@ function NativeTabLayout() {
         <Icon sf={{ default: "clock", selected: "clock.fill" }} />
         <Label>History</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="intelligence">
+        <Icon sf={{ default: "brain", selected: "brain.fill" }} />
+        <Label>Intel</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <Icon sf={{ default: "gearshape", selected: "gearshape.fill" }} />
         <Label>Settings</Label>
@@ -34,7 +38,6 @@ function NativeTabLayout() {
 function ClassicTabLayout() {
   const colors = useColors();
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";
 
@@ -54,11 +57,7 @@ function ClassicTabLayout() {
         },
         tabBarBackground: () =>
           isIOS ? (
-            <BlurView
-              intensity={80}
-              tint="dark"
-              style={StyleSheet.absoluteFill}
-            />
+            <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} />
           ) : null,
         tabBarLabelStyle: {
           fontSize: 10,
@@ -100,6 +99,18 @@ function ClassicTabLayout() {
               <SymbolView name="clock" tintColor={color} size={22} />
             ) : (
               <Feather name="clock" size={20} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="intelligence"
+        options={{
+          title: "Intel",
+          tabBarIcon: ({ color }) =>
+            isIOS ? (
+              <SymbolView name="brain" tintColor={color} size={22} />
+            ) : (
+              <Feather name="cpu" size={20} color={color} />
             ),
         }}
       />
