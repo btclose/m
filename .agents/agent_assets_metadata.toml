@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "OaXcoNy3JPEYcseAD-qdV"
+uri = "file://artifacts/mobile/assets/images/icon.png"
+type = "image"
+title = "bitunix trader app icon"
