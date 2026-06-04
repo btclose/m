@@ -4,7 +4,8 @@ import { positionsCache } from "../lib/cache.js";
 
 const router = Router();
 
-async function getPositions() {
+export async function getPositions() {
+  if (!BitunixClient.isConfigured()) return [];
   const cached = positionsCache.get("positions");
   if (cached) return cached;
   const client = BitunixClient.fromSettings();
@@ -25,9 +26,13 @@ router.get("/", async (req, res) => {
 
 router.post("/:positionId/close", async (req, res) => {
   try {
+    if (!BitunixClient.isConfigured()) {
+      res.status(400).json({ error: "API key not configured" });
+      return;
+    }
     const client = BitunixClient.fromSettings();
     const result = await client.closePosition(req.params.positionId, req.body);
-    positionsCache.delete("positions"); // bust cache after write
+    positionsCache.delete("positions");
     res.json(result);
   } catch (err) {
     req.log.error({ err }, "Failed to close position");
@@ -37,6 +42,10 @@ router.post("/:positionId/close", async (req, res) => {
 
 router.post("/:positionId/reduce", async (req, res) => {
   try {
+    if (!BitunixClient.isConfigured()) {
+      res.status(400).json({ error: "API key not configured" });
+      return;
+    }
     const client = BitunixClient.fromSettings();
     const result = await client.reducePosition(req.params.positionId, req.body);
     positionsCache.delete("positions");
@@ -49,6 +58,10 @@ router.post("/:positionId/reduce", async (req, res) => {
 
 router.post("/close-all", async (req, res) => {
   try {
+    if (!BitunixClient.isConfigured()) {
+      res.status(400).json({ error: "API key not configured" });
+      return;
+    }
     const client = BitunixClient.fromSettings();
     const result = await client.closeAllPositions();
     positionsCache.delete("positions");

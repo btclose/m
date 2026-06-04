@@ -1,0 +1,2 @@
+- [Bitunix API guard pattern](bitunix-api-guard.md) — all routes must call BitunixClient.isConfigured() before hitting Bitunix API or they 500-spam on startup
+- [Trigger Ninja monitor](trigger-ninja-monitor.md) — background 3s loop in triggerMonitor.ts; started in app.ts via startTriggerMonitor()

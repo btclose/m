@@ -83,6 +83,11 @@ export class BitunixClient {
     return new BitunixClient(s.apiKey, s.apiSecret, s.baseUrl);
   }
 
+  static isConfigured(): boolean {
+    const s = SettingsStore.getInstance().get();
+    return !!(s.apiKey && s.apiSecret && s.apiKey.trim().length > 0);
+  }
+
   private sign(timestamp: string, method: string, path: string, body: string = ""): string {
     const message = timestamp + method.toUpperCase() + path + body;
     return crypto.createHmac("sha256", this.apiSecret).update(message).digest("hex");

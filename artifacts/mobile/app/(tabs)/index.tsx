@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -23,6 +23,8 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useColors } from "@/hooks/useColors";
 
+const BASE_URL = `https://${process.env.EXPO_PUBLIC_DOMAIN}`;
+
 type Position = {
   id: string;
   symbol: string;
@@ -37,6 +39,28 @@ type Position = {
   margin: number;
   createdAt: string;
 };
+
+function SetupBanner() {
+  const colors = useColors();
+  const router = useRouter();
+  return (
+    <View style={[styles.setupBanner, { backgroundColor: colors.primary + "18", borderColor: colors.primary + "44" }]}>
+      <Feather name="key" size={20} color={colors.primary} />
+      <View style={{ flex: 1 }}>
+        <Text style={[styles.setupTitle, { color: colors.foreground }]}>API Key Required</Text>
+        <Text style={[styles.setupText, { color: colors.mutedForeground }]}>
+          Add your Bitunix API key and secret in Settings to start trading.
+        </Text>
+      </View>
+      <TouchableOpacity
+        onPress={() => router.push("/(tabs)/settings" as any)}
+        style={[styles.setupBtn, { backgroundColor: colors.primary }]}
+      >
+        <Text style={[styles.setupBtnText, { color: colors.primaryForeground }]}>Setup</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
 
 function AccountHeader({ account }: { account: any }) {
   const colors = useColors();
@@ -194,13 +218,21 @@ export default function PositionsScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
+  const [configured, setConfigured] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    fetch(`${BASE_URL}/api/status`)
+      .then(r => r.json())
+      .then((s: any) => setConfigured(!!s.configured))
+      .catch(() => setConfigured(false));
+  }, []);
 
   const { data: positions, isLoading: posLoading, error: posError, refetch: refetchPositions } = useGetPositions({
-    query: { queryKey: getGetPositionsQueryKey(), refetchInterval: 5000 },
+    query: { queryKey: getGetPositionsQueryKey(), refetchInterval: configured ? 5000 : false },
   });
 
   const { data: account } = useGetAccount({
-    query: { refetchInterval: 5000 },
+    query: { refetchInterval: configured ? 5000 : false },
   });
 
   const { mutate: closeAll, isPending: closingAll } = useCloseAllPositions({
@@ -214,6 +246,8 @@ export default function PositionsScreen() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    const s = await fetch(`${BASE_URL}/api/status`).then(r => r.json()).catch(() => ({ configured: false }));
+    setConfigured(!!s.configured);
     await refetchPositions();
     setRefreshing(false);
   }, [refetchPositions]);
@@ -258,15 +292,17 @@ export default function PositionsScreen() {
         )}
       </View>
 
-      {account && <AccountHeader account={account} />}
+      {configured === false && <SetupBanner />}
 
-      {posLoading && !refreshing && (
+      {configured && account && <AccountHeader account={account} />}
+
+      {posLoading && !refreshing && configured && (
         <View style={styles.center}>
           <ActivityIndicator color={colors.primary} size="large" />
         </View>
       )}
 
-      {posError && (
+      {posError && configured && (
         <View style={styles.center}>
           <Feather name="wifi-off" size={40} color={colors.mutedForeground} />
           <Text style={[styles.emptyTitle, { color: colors.foreground, marginTop: 12 }]}>
@@ -306,11 +342,23 @@ export default function PositionsScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.center}>
-              <Feather name="activity" size={48} color={colors.mutedForeground} />
-              <Text style={[styles.emptyTitle, { color: colors.foreground }]}>No Open Positions</Text>
-              <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-                Your positions will appear here
-              </Text>
+              {configured === false ? (
+                <>
+                  <Feather name="key" size={48} color={colors.mutedForeground} />
+                  <Text style={[styles.emptyTitle, { color: colors.foreground }]}>Not Connected</Text>
+                  <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
+                    Add your API key in Settings to see positions
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Feather name="activity" size={48} color={colors.mutedForeground} />
+                  <Text style={[styles.emptyTitle, { color: colors.foreground }]}>No Open Positions</Text>
+                  <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
+                    Your positions will appear here
+                  </Text>
+                </>
+              )}
             </View>
           }
         />
@@ -343,6 +391,24 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_600SemiBold",
     fontSize: 13,
   },
+  setupBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  setupTitle: { fontSize: 14, fontFamily: "Inter_600SemiBold", marginBottom: 2 },
+  setupText: { fontSize: 12, fontFamily: "Inter_400Regular", lineHeight: 16 },
+  setupBtn: {
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  setupBtnText: { fontSize: 13, fontFamily: "Inter_600SemiBold" },
   accountCard: {
     marginHorizontal: 16,
     marginBottom: 12,

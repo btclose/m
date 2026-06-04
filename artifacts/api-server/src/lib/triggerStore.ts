@@ -8,9 +8,13 @@ export interface Trigger {
   closeType: "market" | "limit";
   active: boolean;
   createdAt: string;
+  executedAt?: string;
+  executionError?: string;
+  highWatermark?: number;
+  lowWatermark?: number;
 }
 
-export type CreateTriggerRequest = Omit<Trigger, "id" | "active" | "createdAt">;
+export type CreateTriggerRequest = Omit<Trigger, "id" | "active" | "createdAt" | "executedAt" | "executionError" | "highWatermark" | "lowWatermark">;
 
 export class TriggerStore {
   private static instance: TriggerStore;
@@ -25,6 +29,10 @@ export class TriggerStore {
 
   getAll(): Trigger[] {
     return Array.from(this.triggers.values());
+  }
+
+  getActive(): Trigger[] {
+    return Array.from(this.triggers.values()).filter(t => t.active);
   }
 
   create(data: CreateTriggerRequest): Trigger {
@@ -49,5 +57,33 @@ export class TriggerStore {
     const updated = { ...existing, ...partial };
     this.triggers.set(id, updated);
     return updated;
+  }
+
+  deactivate(id: string): void {
+    const t = this.triggers.get(id);
+    if (t) this.triggers.set(id, { ...t, active: false });
+  }
+
+  markExecuted(id: string, error?: string): void {
+    const t = this.triggers.get(id);
+    if (t) {
+      this.triggers.set(id, {
+        ...t,
+        active: false,
+        executedAt: new Date().toISOString(),
+        executionError: error,
+      });
+    }
+  }
+
+  updateWatermark(id: string, highWatermark?: number, lowWatermark?: number): void {
+    const t = this.triggers.get(id);
+    if (t) {
+      this.triggers.set(id, {
+        ...t,
+        ...(highWatermark !== undefined ? { highWatermark } : {}),
+        ...(lowWatermark !== undefined ? { lowWatermark } : {}),
+      });
+    }
   }
 }

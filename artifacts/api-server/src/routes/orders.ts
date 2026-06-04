@@ -5,6 +5,7 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   try {
+    if (!BitunixClient.isConfigured()) { res.json([]); return; }
     const client = BitunixClient.fromSettings();
     const orders = await client.getOpenOrders();
     res.json(orders);
@@ -16,6 +17,10 @@ router.get("/", async (req, res) => {
 
 router.delete("/:orderId", async (req, res) => {
   try {
+    if (!BitunixClient.isConfigured()) {
+      res.status(400).json({ error: "API key not configured" });
+      return;
+    }
     const client = BitunixClient.fromSettings();
     const result = await client.cancelOrder(req.params.orderId);
     res.json(result);

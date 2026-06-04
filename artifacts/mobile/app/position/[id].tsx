@@ -418,10 +418,10 @@ export default function PositionDetailScreen() {
 
         {tab === "triggers" && (
           <View style={styles.section}>
-            {positionTriggers.length > 0 && (
+            {positionTriggers.filter(t => t.active).length > 0 && (
               <>
                 <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>ACTIVE TRIGGERS</Text>
-                {positionTriggers.map((trigger) => (
+                {positionTriggers.filter(t => t.active).map((trigger) => (
                   <View key={trigger.id} style={[styles.triggerCard, { backgroundColor: colors.card, borderColor: colors.primary + "33" }]}>
                     <View style={styles.triggerInfo}>
                       <View style={[styles.triggerBadge, { backgroundColor: colors.primary + "22" }]}>
@@ -430,7 +430,9 @@ export default function PositionDetailScreen() {
                         </Text>
                       </View>
                       <Text style={[styles.triggerDesc, { color: colors.foreground }]}>
-                        {trigger.condition === "above" ? "Price >" : "Price <"} {trigger.value} → {trigger.closeType}
+                        {trigger.triggerType === "pnl_percent"
+                          ? `PnL ${trigger.condition === "above" ? ">" : "<"} ${trigger.value}%`
+                          : `Price ${trigger.condition === "above" ? ">" : "<"} ${trigger.value}`} → {trigger.closeType}
                       </Text>
                     </View>
                     <TouchableOpacity
@@ -439,6 +441,27 @@ export default function PositionDetailScreen() {
                     >
                       <Feather name="trash-2" size={14} color={colors.loss} />
                     </TouchableOpacity>
+                  </View>
+                ))}
+              </>
+            )}
+
+            {positionTriggers.filter(t => !t.active).length > 0 && (
+              <>
+                <Text style={[styles.sectionTitle, { color: colors.mutedForeground, marginTop: 12 }]}>FIRED TRIGGERS</Text>
+                {positionTriggers.filter(t => !t.active).map((trigger) => (
+                  <View key={trigger.id} style={[styles.triggerCard, { backgroundColor: colors.card, borderColor: (trigger as any).executionError ? colors.loss + "55" : colors.profit + "55" }]}>
+                    <View style={styles.triggerInfo}>
+                      <View style={[styles.triggerBadge, { backgroundColor: (trigger as any).executionError ? colors.loss + "22" : colors.profit + "22" }]}>
+                        <Feather name={(trigger as any).executionError ? "alert-circle" : "check-circle"} size={10} color={(trigger as any).executionError ? colors.loss : colors.profit} />
+                        <Text style={[styles.triggerBadgeText, { color: (trigger as any).executionError ? colors.loss : colors.profit }]}>
+                          {(trigger as any).executionError ? "FAILED" : "FIRED"}
+                        </Text>
+                      </View>
+                      <Text style={[styles.triggerDesc, { color: colors.mutedForeground }]}>
+                        {trigger.triggerType.replace(/_/g, " ")} · {trigger.closeType}{(trigger as any).executedAt ? ` · ${new Date((trigger as any).executedAt).toLocaleTimeString()}` : ""}
+                      </Text>
+                    </View>
                   </View>
                 ))}
               </>
@@ -646,7 +669,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   triggerInfo: { flex: 1, gap: 4 },
-  triggerBadge: { borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, alignSelf: "flex-start" },
+  triggerBadge: { flexDirection: "row", alignItems: "center", gap: 4, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, alignSelf: "flex-start" },
   triggerBadgeText: { fontSize: 10, fontFamily: "Inter_600SemiBold" },
   triggerDesc: { fontSize: 13, fontFamily: "Inter_500Medium" },
   deleteTriggerBtn: { padding: 8 },
