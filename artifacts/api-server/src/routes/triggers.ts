@@ -22,7 +22,8 @@ router.post("/", async (req, res) => {
 router.delete("/:triggerId", async (req, res) => {
   const deleted = store.delete(req.params.triggerId);
   if (!deleted) {
-    return res.status(404).json({ error: "Trigger not found" });
+    res.status(404).json({ error: "Trigger not found" });
+    return;
   }
   res.json({ success: true });
 });

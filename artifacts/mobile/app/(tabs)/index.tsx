@@ -19,6 +19,7 @@ import {
   useGetAccount,
   useCloseAllPositions,
   getGetPositionsQueryKey,
+  getGetAccountQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useColors } from "@/hooks/useColors";
@@ -232,7 +233,7 @@ export default function PositionsScreen() {
   });
 
   const { data: account } = useGetAccount({
-    query: { refetchInterval: configured ? 5000 : false },
+    query: { queryKey: getGetAccountQueryKey(), refetchInterval: configured ? 5000 : false },
   });
 
   const { mutate: closeAll, isPending: closingAll } = useCloseAllPositions({

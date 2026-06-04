@@ -23,6 +23,7 @@ import {
   useDeleteTrigger,
   getGetPositionsQueryKey,
   getGetTriggersQueryKey,
+  type Trigger,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useColors } from "@/hooks/useColors";
@@ -449,17 +450,17 @@ export default function PositionDetailScreen() {
             {positionTriggers.filter(t => !t.active).length > 0 && (
               <>
                 <Text style={[styles.sectionTitle, { color: colors.mutedForeground, marginTop: 12 }]}>FIRED TRIGGERS</Text>
-                {positionTriggers.filter(t => !t.active).map((trigger) => (
-                  <View key={trigger.id} style={[styles.triggerCard, { backgroundColor: colors.card, borderColor: (trigger as any).executionError ? colors.loss + "55" : colors.profit + "55" }]}>
+                {positionTriggers.filter(t => !t.active).map((trigger: Trigger) => (
+                  <View key={trigger.id} style={[styles.triggerCard, { backgroundColor: colors.card, borderColor: trigger.executionError ? colors.loss + "55" : colors.profit + "55" }]}>
                     <View style={styles.triggerInfo}>
-                      <View style={[styles.triggerBadge, { backgroundColor: (trigger as any).executionError ? colors.loss + "22" : colors.profit + "22" }]}>
-                        <Feather name={(trigger as any).executionError ? "alert-circle" : "check-circle"} size={10} color={(trigger as any).executionError ? colors.loss : colors.profit} />
-                        <Text style={[styles.triggerBadgeText, { color: (trigger as any).executionError ? colors.loss : colors.profit }]}>
-                          {(trigger as any).executionError ? "FAILED" : "FIRED"}
+                      <View style={[styles.triggerBadge, { backgroundColor: trigger.executionError ? colors.loss + "22" : colors.profit + "22" }]}>
+                        <Feather name={trigger.executionError ? "alert-circle" : "check-circle"} size={10} color={trigger.executionError ? colors.loss : colors.profit} />
+                        <Text style={[styles.triggerBadgeText, { color: trigger.executionError ? colors.loss : colors.profit }]}>
+                          {trigger.executionError ? "FAILED" : "FIRED"}
                         </Text>
                       </View>
                       <Text style={[styles.triggerDesc, { color: colors.mutedForeground }]}>
-                        {trigger.triggerType.replace(/_/g, " ")} · {trigger.closeType}{(trigger as any).executedAt ? ` · ${new Date((trigger as any).executedAt).toLocaleTimeString()}` : ""}
+                        {trigger.triggerType.replace(/_/g, " ")} · {trigger.closeType}{trigger.executedAt ? ` · ${new Date(trigger.executedAt).toLocaleTimeString()}` : ""}
                       </Text>
                     </View>
                   </View>

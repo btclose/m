@@ -432,6 +432,12 @@ components:
           type: boolean
         createdAt:
           type: string
+        executedAt:
+          type: string
+          description: ISO timestamp when Trigger Ninja auto-fired this trigger
+        executionError:
+          type: string
+          description: Error message if the auto-close order failed
       required: [id, positionId, symbol, triggerType, condition, value, closeType, active, createdAt]
 
     CreateTriggerRequest:

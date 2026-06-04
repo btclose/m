@@ -138,6 +138,10 @@ export interface Trigger {
   closeType: TriggerCloseType;
   active: boolean;
   createdAt: string;
+  /** ISO timestamp when Trigger Ninja auto-fired this trigger */
+  executedAt?: string;
+  /** Error message if the auto-close order failed */
+  executionError?: string;
 }
 
 export type CreateTriggerRequestTriggerType = typeof CreateTriggerRequestTriggerType[keyof typeof CreateTriggerRequestTriggerType];

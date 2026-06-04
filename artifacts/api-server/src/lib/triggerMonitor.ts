@@ -89,11 +89,15 @@ async function executeClose(trigger: Trigger, reason: string | undefined, store:
   }
 }
 
+let inFlight = false;
+
 export function startTriggerMonitor(): void {
   logger.info("Trigger Ninja monitor started");
   setInterval(() => {
-    runCheck().catch(err => {
-      logger.error({ err }, "Trigger monitor: unhandled error");
-    });
+    if (inFlight) return;
+    inFlight = true;
+    runCheck()
+      .catch(err => logger.error({ err }, "Trigger monitor: unhandled error"))
+      .finally(() => { inFlight = false; });
   }, POLL_INTERVAL_MS);
 }

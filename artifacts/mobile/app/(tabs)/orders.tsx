@@ -26,7 +26,7 @@ type Order = {
   symbol: string;
   side: string;
   type: string;
-  price: number;
+  price?: number;
   size: number;
   filled: number;
   status: string;
@@ -63,7 +63,7 @@ function OrderCard({ order, onCancel }: { order: Order; onCancel: () => void }) 
       <View style={styles.statsRow}>
         <View style={styles.stat}>
           <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Price</Text>
-          <Text style={[styles.statValue, { color: colors.foreground }]}>${order.price.toFixed(2)}</Text>
+          <Text style={[styles.statValue, { color: colors.foreground }]}>${(order.price ?? 0).toFixed(2)}</Text>
         </View>
         <View style={styles.stat}>
           <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>Size</Text>

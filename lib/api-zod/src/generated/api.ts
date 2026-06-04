@@ -164,7 +164,9 @@ export const GetTriggersResponseItem = zod.object({
   "value": zod.number(),
   "closeType": zod.enum(['market', 'limit']),
   "active": zod.boolean(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "executedAt": zod.string().optional().describe('ISO timestamp when Trigger Ninja auto-fired this trigger'),
+  "executionError": zod.string().optional().describe('Error message if the auto-close order failed')
 })
 export const GetTriggersResponse = zod.array(GetTriggersResponseItem)
 
@@ -190,7 +192,9 @@ export const CreateTriggerResponse = zod.object({
   "value": zod.number(),
   "closeType": zod.enum(['market', 'limit']),
   "active": zod.boolean(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "executedAt": zod.string().optional().describe('ISO timestamp when Trigger Ninja auto-fired this trigger'),
+  "executionError": zod.string().optional().describe('Error message if the auto-close order failed')
 })
 
 
